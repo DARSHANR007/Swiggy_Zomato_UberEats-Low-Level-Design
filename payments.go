@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// PaymentStatus represents the status of a payment
 type PaymentStatus string
 
 const (
@@ -15,7 +14,6 @@ const (
 	PaymentFailed    PaymentStatus = "Failed"
 )
 
-// PaymentMethod defines available payment methods
 type PaymentMethod string
 
 const (
@@ -24,7 +22,6 @@ const (
 	CashOnDelivery PaymentMethod = "Cash on Delivery"
 )
 
-// Payment struct holds the payment details
 type Payment struct {
 	PaymentID     string
 	UserID        int
@@ -34,15 +31,12 @@ type Payment struct {
 	TransactionAt time.Time
 }
 
-// Simulate payment database
 var paymentData = make(map[string]*Payment)
 
-// Generate a random payment ID
 func generatePaymentID() string {
 	return fmt.Sprintf("PAY-%d", rand.Intn(1000000))
 }
 
-// ProcessPayment simulates payment processing
 func ProcessPayment(userID int, amount float64, method PaymentMethod) *Payment {
 	rand.Seed(time.Now().UnixNano())
 
@@ -55,7 +49,6 @@ func ProcessPayment(userID int, amount float64, method PaymentMethod) *Payment {
 		TransactionAt: time.Now(),
 	}
 
-	// Simulate success/failure randomly (80% chance of success)
 	if rand.Intn(100) < 80 {
 		payment.Status = PaymentCompleted
 		fmt.Println("✅ Payment Successful")
@@ -64,7 +57,6 @@ func ProcessPayment(userID int, amount float64, method PaymentMethod) *Payment {
 		fmt.Println("❌ Payment Failed")
 	}
 
-	// Store in payment data
 	paymentData[payment.PaymentID] = payment
 
 	return payment
