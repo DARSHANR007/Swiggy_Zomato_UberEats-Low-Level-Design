@@ -77,6 +77,4 @@ func (r *restaurant) addDishToMenu(restaurantId int, dishName string, dishId int
 
 func (r *restaurant) recieveOrder(customerData customer, dishname string, nos int) (int, string) {
 
-	return
-
 }
