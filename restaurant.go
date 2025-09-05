@@ -74,3 +74,9 @@ func (r *restaurant) addDishToMenu(restaurantId int, dishName string, dishId int
 	return true, d
 
 }
+
+func (r *restaurant) recieveOrder(customerData customer, dishname string, nos int) (int, string) {
+
+	return
+
+}

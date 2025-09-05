@@ -11,18 +11,18 @@ type customer struct {
 	email    string
 	id       int
 	password string
-	orders   map[int][]orderHistory
+	orders   map[string][]orderHistory
 }
 
 type orderHistory struct {
 	id           int
 	customerId   int
-	restaurantId int
-	dishes       map[int]dish
+	restaurantId int32
+	dishes       map[int]*dish // Changed to *dish to match restaurant.go
 	totalAmount  float64
 }
 
-var customerData = make(map[int]customer)
+var customerData = make(map[int]*customer)
 
 func register(name, address, phone, email, password string, id int) bool {
 	if _, exists := customerData[id]; exists {
@@ -37,34 +37,27 @@ func register(name, address, phone, email, password string, id int) bool {
 		email:    email,
 		id:       id,
 		password: password,
+		orders:   make(map[string][]orderHistory), // Initialize the orders map
 	}
 
-	customerData[c.id] = c
+	customerData[c.id] = &c
 	return true
 }
 
 func searchRestaurant(restaurantname string) (*restaurant, bool) {
 	if hotel, exists := restaurantData[restaurantname]; exists {
-
 		return hotel, true
 	}
-
 	return nil, false
 }
 
 func getCustomerById(id int) *customer {
-	c, ok := customerData[id]
-	if !ok {
-		return nil
-	}
-	return &c
+	return customerData[id]
 }
 
 func (r *restaurant) searchDish(restaurantname string, dishname string, nos int) (*dish, bool) {
-
 	if _, exists := r.menu[dishname]; !exists {
 		return nil, false
-
 	}
 
 	if r.menu[dishname].stock < nos {
@@ -72,15 +65,37 @@ func (r *restaurant) searchDish(restaurantname string, dishname string, nos int)
 	}
 
 	return r.menu[dishname], true
-
 }
 
-func (r *restaurant) getDish(restaurantname string, dishname string, nos int) (bool, int) {
+func (c *customer) getDish(r *restaurant, restaurantName string, dishNames []string, nos int) (bool, float64) {
+	total := 0.0
+	found := false
+	orderedDishes := make(map[int]*dish) // Changed to *dish
 
-	if dish, check := r.searchDish(restaurantname, dishname, nos); check {
-		return true, int(dish.price)
+	for _, dn := range dishNames {
+		if dish, ok := r.searchDish(restaurantName, dn, nos); ok {
+			total += dish.price * float64(nos)
+			orderedDishes[dish.id] = dish
+			found = true
+		}
+	}
+
+	if found {
+		orderID := len(c.orders[r.name]) + 1
+		newOrder := orderHistory{
+			id:           orderID,
+			customerId:   c.id,
+			restaurantId: r.id,
+			dishes:       orderedDishes,
+			totalAmount:  total,
+		}
+
+		if c.orders == nil {
+			c.orders = make(map[string][]orderHistory)
+		}
+		c.orders[r.name] = append(c.orders[r.name], newOrder) // Use r.name instead of r.id
+		return true, total
 	}
 
 	return false, 0
-
 }
