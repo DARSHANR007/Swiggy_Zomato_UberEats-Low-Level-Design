@@ -4,58 +4,73 @@ import (
 	"fmt"
 )
 
-type customer struct {
+type Restaurant struct {
+	name string
+	id   int32
+	menu map[string]*dish
+}
+
+type dish struct {
+	id    int
+	name  string
+	price float64
+	stock int
+}
+
+var restaurantData = make(map[string]*Restaurant)
+
+type Customer struct {
 	name     string
 	address  string
 	phone    string
 	email    string
 	id       int
 	password string
-	orders   map[string][]orderHistory
+	orders   map[string][]OrderHistory
 }
 
-type orderHistory struct {
+type OrderHistory struct {
 	id           int
-	customerId   int
-	restaurantId int32
-	dishes       map[int]*dish // Changed to *dish to match restaurant.go
+	CustomerId   int
+	RestaurantId int32
+	dishes       map[int]*dish // Changed to *dish to match Restaurant.go
 	totalAmount  float64
 }
 
-var customerData = make(map[int]*customer)
+var CustomerData = make(map[int]*Customer)
 
 func register(name, address, phone, email, password string, id int) bool {
-	if _, exists := customerData[id]; exists {
+	if _, exists := CustomerData[id]; exists {
 		fmt.Println("Customer already exists with ID:", id)
 		return false
 	}
 
-	c := customer{
+	c := Customer{
 		name:     name,
 		address:  address,
 		phone:    phone,
 		email:    email,
 		id:       id,
 		password: password,
-		orders:   make(map[string][]orderHistory), // Initialize the orders map
+		orders:   make(map[string][]OrderHistory), // Initialize the orders map
 	}
 
-	customerData[c.id] = &c
+	CustomerData[c.id] = &c
 	return true
 }
 
-func searchRestaurant(restaurantname string) (*restaurant, bool) {
-	if hotel, exists := restaurantData[restaurantname]; exists {
+func searchRestaurant(Restaurantname string) (*Restaurant, bool) {
+	if hotel, exists := restaurantData[Restaurantname]; exists {
 		return hotel, true
 	}
 	return nil, false
 }
 
-func getCustomerById(id int) *customer {
-	return customerData[id]
+func getCustomerById(id int) *Customer {
+	return CustomerData[id]
 }
 
-func (r *restaurant) searchDish(restaurantname string, dishname string, nos int) (*dish, bool) {
+func (r *Restaurant) searchDish(Restaurantname string, dishname string, nos int) (*dish, bool) {
 	if _, exists := r.menu[dishname]; !exists {
 		return nil, false
 	}
@@ -67,13 +82,13 @@ func (r *restaurant) searchDish(restaurantname string, dishname string, nos int)
 	return r.menu[dishname], true
 }
 
-func (c *customer) getDish(r *restaurant, restaurantName string, dishNames []string, nos int) (bool, float64) {
+func (c *Customer) getDish(r *Restaurant, RestaurantName string, dishNames []string, nos int) (bool, float64) {
 	total := 0.0
 	found := false
 	orderedDishes := make(map[int]*dish) // Changed to *dish
 
 	for _, dn := range dishNames {
-		if dish, ok := r.searchDish(restaurantName, dn, nos); ok {
+		if dish, ok := r.searchDish(RestaurantName, dn, nos); ok {
 			total += dish.price * float64(nos)
 			orderedDishes[dish.id] = dish
 			found = true
@@ -82,16 +97,16 @@ func (c *customer) getDish(r *restaurant, restaurantName string, dishNames []str
 
 	if found {
 		orderID := len(c.orders[r.name]) + 1
-		newOrder := orderHistory{
+		newOrder := OrderHistory{
 			id:           orderID,
-			customerId:   c.id,
-			restaurantId: r.id,
+			CustomerId:   c.id,
+			RestaurantId: r.id,
 			dishes:       orderedDishes,
 			totalAmount:  total,
 		}
 
 		if c.orders == nil {
-			c.orders = make(map[string][]orderHistory)
+			c.orders = make(map[string][]OrderHistory)
 		}
 		c.orders[r.name] = append(c.orders[r.name], newOrder) // Use r.name instead of r.id
 		return true, total

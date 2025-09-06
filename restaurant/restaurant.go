@@ -1,6 +1,14 @@
 package main
 
-type restaurant struct {
+type Customer struct {
+	// Add customer fields as needed
+	name  string
+	id    int
+	email string
+	phone string
+}
+
+type Restaurant struct {
 	name     string
 	id       int32
 	address  []string
@@ -25,14 +33,14 @@ type dish struct {
 	tags         []string
 }
 
-var restaurantData = make(map[string]*restaurant)
+var restaurantData = make(map[string]*Restaurant)
 
-func addRestaurant(address []string, name, phone, email, password string, id int32) (bool, string, *restaurant) {
+func addRestaurant(address []string, name, phone, email, password string, id int32) (bool, string, *Restaurant) {
 	if _, exists := restaurantData[name]; exists {
 		return false, "	restaurant already exists with ID: " + string(id), nil
 	}
 
-	r := &restaurant{
+	r := &Restaurant{
 		name:     name,
 		address:  address,
 		phone:    phone,
@@ -47,7 +55,7 @@ func addRestaurant(address []string, name, phone, email, password string, id int
 
 }
 
-func (r *restaurant) addDishToMenu(restaurantId int, dishName string, dishId int, price float64, description, category, cuisine string, stock int) (bool, *dish) {
+func (r *Restaurant) addDishToMenu(restaurantId int, dishName string, dishId int, price float64, description, category, cuisine string, stock int) (bool, *dish) {
 
 	if _, exists := r.menu[dishName]; exists {
 		return false, nil
@@ -75,6 +83,6 @@ func (r *restaurant) addDishToMenu(restaurantId int, dishName string, dishId int
 
 }
 
-func (r *restaurant) recieveOrder(customerData customer, dishname string, nos int) (int, string) {
+// func (r *Restaurant) recieveOrder(customerData Customer, dishname string, nos int) (int, string) {
 
-}
+//}
